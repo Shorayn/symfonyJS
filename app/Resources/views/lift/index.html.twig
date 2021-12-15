@@ -69,86 +69,19 @@
 {% block javascripts %}
     {# Call JS   #}
     {{ parent() }}
+
+    <script src="{{ asset('assets/js/RepLogApp.js') }}"></script>
+
     <script>
-
-        var RepLogApp =  {
-            initialize : function ($wrapper) {
-                this.$wrapper = $wrapper;
-
-                this.$wrapper.find('.js-delete-rep-log').on(
-                    'click',
-                    // Pass reference of function to on() function
-                    this.handleRepLogDelete.bind(this),
-                );
-                this.$wrapper.find('tbody tr ').on(
-                    'click',
-                    this.handleRowClick.bind(this)
-                );
-
-
-            },
-
-            whatIsThis: function (greeting){
-                console.log(this, greeting);
-            },
-
-            updateTotalWeightLifted: function (){
-                var totalWeight = 0;
-                this.$wrapper.find('tbody tr').each(function (){
-                    totalWeight += $(this).data('weight');
-                });
-                this.$wrapper.find('.js-total-weight').html(totalWeight);
-            },
-
-            handleRepLogDelete: function (e){
-                e.preventDefault();
-
-                var $link = $(e.currentTarget);
-
-                $link.addClass('text-danger');
-                $link.find('.fa')
-                    .removeClass('fa-trash')
-                    .addClass('fa-spinner')
-                    .addClass('fa-spin');
-                // console.log(e.currentTarget === this); resolves to true!
-                // e.target.className = e.target.className + ' text-danger';
-
-                var deleteUrl = $link.data('url');
-                var $row = $link.closest('tr');
-
-                var self = this;
-
-                $.ajax({
-                    url: deleteUrl,
-                    method: 'DELETE',
-                    success: function (){
-                        $row.fadeOut('normal', function () {
-                            // $row.remove();
-                            $(this).remove();
-                            self.updateTotalWeightLifted();
-                        });
-                    }
-                });
-
-            },
-
-
-            handleRowClick: function (){
-                console.log("row clicked!")
-            }
-        };
-
-        $(document).ready(function () {
+      $(document).ready(function () {
 
             // JQuery object -> convention
             var $table = $('.js-rep-log-table');
-
-            RepLogApp.initialize($table);
+            var repLogApp = new RepLogApp($table);
 
 
 
         });
-
 
     </script>
 
