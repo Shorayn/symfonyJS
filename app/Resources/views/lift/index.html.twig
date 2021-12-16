@@ -20,19 +20,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for repLog in repLogs %}
-                    {{ include('lift/_repRow.html.twig') }}
-                {% else %}
-                    <tr>
-                        <td colspan="4">Get liftin'!</td>
-                    </tr>
-                {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
                         <td>&nbsp;</td>
                         <th>Total</th>
-                        <th class="js-total-weight">{{ totalWeight }}</th>
+                        <th class="js-total-weight"></th>
                         <td>&nbsp;</td>
                     </tr>
                 </tfoot>
@@ -74,6 +67,23 @@
 
 
         });
+
+    </script>
+
+    <script type="text/template" id="js-rep-log-row-template">
+        <tr data-weight ="<%= totalWeightLifted %>">
+            <td><%= itemLabel %></td>
+            <td><%= reps %></td>
+            <td><%= totalWeightLifted %></td>
+            <td>
+                &nbsp;<a href="#"
+                         class="js-delete-rep-log"
+                         data-url = "<%= links._self %>"
+                >
+                    <span class="fa fa-trash"></span>
+                </a>
+            </td>
+        </tr>
 
     </script>
 
