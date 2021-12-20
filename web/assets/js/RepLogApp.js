@@ -1,6 +1,6 @@
 'use strict';
 
-(function (window, $, Routing) {
+(function (window, $, Routing, swal) {
     // Holds all global variables
     window.RepLogApp = function ($wrapper) {
             this.$wrapper = $wrapper;
@@ -36,11 +36,10 @@
 
             $.ajax({
                 url: Routing.generate('rep_log_list'),
-                success: function (data){
-                    $.each(data.items, function (key, repLog){
-                        self._addRow(repLog);
-                    });
-                }
+            }).then(function (data){
+                $.each(data.items, function (key, repLog){
+                    self._addRow(repLog);
+                });
             })
         },
 
@@ -56,6 +55,24 @@
 
             var $link = $(e.currentTarget);
 
+            var self = this;
+
+            swal({
+                title: 'Delete this log?',
+                text: 'What? Did you not actually lift this?',
+                showCancelButton: true,
+                showLoaderOnConfirm: true,
+                preConfirm: function (){
+                    return self._deleteRepLog($link);
+                }
+            }).catch( function (arg) {
+                // cancelling
+            });
+
+
+        },
+
+        _deleteRepLog: function ($link){
             $link.addClass('text-danger');
             $link.find('.fa')
                 .removeClass('fa-trash')
@@ -69,18 +86,16 @@
 
             var self = this;
 
-            $.ajax({
+            return $.ajax({
                 url: deleteUrl,
                 method: 'DELETE',
-                success: function () {
-                    $row.fadeOut('normal', function () {
-                        // $row.remove();
-                        $(this).remove();
-                        self.updateTotalWeightLifted();
-                    });
-                }
+            }).then(function (){
+                $row.fadeOut('normal', function () {
+                    // $row.remove();
+                    $(this).remove();
+                    self.updateTotalWeightLifted();
+                });
             });
-
         },
 
 
@@ -99,20 +114,53 @@
 
             var self = this;
 
-            $.ajax({
-                url: $form.data('url'),
-                method: 'POST',
-                data: JSON.stringify(formData),
-                success: function (data){
-                    self._clearForm();
-                    self._addRow(data);
-                },
-                error: function (jqXHR){
-                    var errorData = JSON.parse(jqXHR.responseText);
-                    self._mapErrorsToForm(errorData.errors);
-                }
+            this._saveRepLog(formData)
+            .then(function (data){
+                self._clearForm();
+                self._addRow(data);
+
+            }).catch(function (jqXHR){
+                var errorData = JSON.parse(jqXHR.responseText);
+                self._mapErrorsToForm(errorData.errors);
             });
 
+
+        },
+
+        // Longer Promise version
+        // _saveRepLog: function (data){
+        //     return new Promise(function (resolve, reject){
+        //         $.ajax({
+        //             url: Routing.generate('rep_log_new'),
+        //             method: 'POST',
+        //             data: JSON.stringify(data),
+        //             // Used as a standard for promise (successful)
+        //         }).then(function (data, textStatus, jqXHR){
+        //             $.ajax({
+        //                 url: jqXHR.getResponseHeader("Location")
+        //             }).then(function (data){
+        //                 console.log('now we are really done');
+        //                 console.log(data);
+        //                 // we're done
+        //                 resolve(data);
+        //             });
+        //
+        //         }).catch(function (errorData){
+        //             reject(errorData);
+        //         });
+        //     });
+        // },
+        _saveRepLog: function (data){
+            return $.ajax({
+                    url: Routing.generate('rep_log_new'),
+                    method: 'POST',
+                    data: JSON.stringify(data),
+                    // Used as a standard for promise (successful)
+                }).then(function (data, textStatus, jqXHR){
+                    return $.ajax({
+                        url: jqXHR.getResponseHeader("Location")
+                    });
+                });
 
         },
 
@@ -188,4 +236,4 @@
         // if function starts with _  -> Should be treated as a private function (keep in mind: everything in JS in public!)
         // prototype, makes function callable on instance of object
 
-})(window, jQuery, Routing);
+})(window, jQuery, Routing, swal);
