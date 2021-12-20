@@ -52,7 +52,7 @@ class RepLogController extends BaseController
     }
 
     /**
-     * @Route("/reps", name="rep_log_new")
+     * @Route("/reps", name="rep_log_new", options={"expose" = true})
      * @Method("POST")
      */
     public function newRepLogAction(Request $request)
@@ -84,7 +84,8 @@ class RepLogController extends BaseController
 
         $apiModel = $this->createRepLogApiModel($repLog);
 
-        $response = $this->createApiResponse($apiModel);
+//        $response = $this->createApiResponse($apiModel);
+        $response = new Response(null, 204);
         // setting the Location header... it's a best-practice
         $response->headers->set(
             'Location',
