@@ -198,6 +198,8 @@
         }
 
         _addRow(repLog){
+            let {id, itemLabel, reps, totallyMadeUpKey = 'whatever'} = repLog;
+            console.log(id, itemLabel, reps, totallyMadeUpKey) ;
 
             const tplText = $('#js-rep-log-row-template').html();
             const tpl = _.template(tplText);
