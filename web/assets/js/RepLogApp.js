@@ -198,13 +198,13 @@
         }
 
         _addRow(repLog){
-            let {id, itemLabel, reps, totallyMadeUpKey = 'whatever'} = repLog;
-            console.log(id, itemLabel, reps, totallyMadeUpKey) ;
+            // let {id, itemLabel, reps, totallyMadeUpKey = 'whatever'} = repLog;
+            // console.log(id, itemLabel, reps, totallyMadeUpKey) ;
 
-            const tplText = $('#js-rep-log-row-template').html();
-            const tpl = _.template(tplText);
 
-            const html = tpl(repLog);
+
+            const html = rowTemplate(repLog);
+
             this.$wrapper.find('tbody')
                 .append($.parseHTML(html));
             this.updateTotalWeightLifted();
@@ -248,6 +248,24 @@
            return totalWeight;
        }
    }
+
+
+    const rowTemplate = (repLog) => `
+<tr data-weight="${repLog.totalWeightLifted}" >
+    <td>${repLog.itemLabel}</td>
+    <td>${repLog.reps}</td>
+    <td>${repLog.totalWeightLifted}</td>
+    <td>
+        <a href="#"
+        class="js-delete-rep-log"
+        data-url="${repLog.links._self}"
+        >
+            <span class="fa fa-trash"></span>
+        </a>
+    </td>
+</tr>
+`;
+
         // if function starts with _  -> Should be treated as a private function (keep in mind: everything in JS in public!)
         // prototype, makes function callable on instance of object
     // make class visible in global (public) scope -> used in index.html

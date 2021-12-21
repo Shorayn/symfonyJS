@@ -1,11 +1,4 @@
-let yummyThings = ['pizza', 'gelato', 'sushi', 'cheeseburger'];
+const favouriteFood = 'gelato';
+const iLoveFood = `The year is ${new Date().getFullYear()} and my favourite food is  ${favouriteFood}`;
 
-let greatThings = ['swimming', 'sunset', ...yummyThings, 'New Orleans'];
-
-let copyOfGreatThings = [...greatThings];
-copyOfGreatThings.push('summer');
-
-console.log(greatThings);
-console.log(copyOfGreatThings);
-
-
+console.log(iLoveFood);
