@@ -6,7 +6,8 @@
     class RepLogApp {
         constructor($wrapper) {
             this.$wrapper = $wrapper;
-            HelperInstance.set(this, new Helper($wrapper));
+            this.repLogs = [];
+            HelperInstance.set(this, new Helper(this.repLogs));
 
             this.loadRepLogs();
 
@@ -90,7 +91,14 @@
                 method: 'DELETE',
             }).then(() => {
                 $row.fadeOut('normal', () => {
-                    // $row.remove();
+                    // remove repLog from this.replogs
+                    // key index to this replog of this.replog
+                    this.repLogs.splice(
+                        $row.data('key'),
+                        1
+                    );
+
+
                     $row.remove();
                     this.updateTotalWeightLifted();
                 });
@@ -198,13 +206,12 @@
         }
 
         _addRow(repLog){
-            // let {id, itemLabel, reps, totallyMadeUpKey = 'whatever'} = repLog;
-            // console.log(id, itemLabel, reps, totallyMadeUpKey) ;
-
-
+            this.repLogs.push(repLog);
 
             const html = rowTemplate(repLog);
-
+            const $row = $($.parseHTML(html));
+            // store repLogs index
+            $row.data('key', this.repLogs.length - 1)
             this.$wrapper.find('tbody')
                 .append($.parseHTML(html));
             this.updateTotalWeightLifted();
@@ -220,13 +227,13 @@
      */
 
     class Helper{
-        constructor($wrapper) {
-            this.$wrapper = $wrapper;
+        constructor(repLogs) {
+            this.repLogs = repLogs;
         }
 
        calculateTotalWeight() {
             return Helper._calculateWeight(
-                this.$wrapper.find('tbody tr')
+                this.repLogs
             );
 
        }
@@ -240,10 +247,10 @@
            return weight + ' lbs';
        }
 
-       static _calculateWeight ($elements){
+       static _calculateWeight (repLogs){
            let totalWeight = 0;
-           for(let element of $elements) {
-               totalWeight += $(element).data('weight');
+           for(let repLog of repLogs) {
+               totalWeight += repLog.totalWeightLifted;
            }
            return totalWeight;
        }
