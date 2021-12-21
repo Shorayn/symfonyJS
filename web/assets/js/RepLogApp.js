@@ -31,8 +31,7 @@
             newRepForm: '.js-new-rep-log-form'
         },
 
-        loadRepLogs: function (){
-
+        loadRepLogs(){
             $.ajax({
                 url: Routing.generate('rep_log_list'),
                 // anonymous function shorter syntax
@@ -45,14 +44,14 @@
             })
         },
 
-        updateTotalWeightLifted: function () {
+        updateTotalWeightLifted() {
 
             this.$wrapper.find('.js-total-weight').html(
-                this.helper.calculateTotalWeight()
+                this.helper.getTotalWeightString()
             );
         },
 
-        handleRepLogDelete: function (e) {
+        handleRepLogDelete(e) {
             e.preventDefault();
 
             const $link = $(e.currentTarget);
@@ -71,7 +70,7 @@
 
         },
 
-        _deleteRepLog: function ($link){
+        _deleteRepLog($link){
             $link.addClass('text-danger');
             $link.find('.fa')
                 .removeClass('fa-trash')
@@ -97,11 +96,11 @@
         },
 
 
-        handleRowClick: function () {
+        handleRowClick() {
             console.log("row clicked!")
         },
 
-        handleNewFormSubmit: function (e){
+        handleNewFormSubmit(e){
             e.preventDefault();
 
             const $form = $(e.currentTarget);
@@ -125,43 +124,42 @@
         },
 
         // Longer Promise version
-        // _saveRepLog: function (data){
-        //     return new Promise(function (resolve, reject){
-        //         $.ajax({
-        //             url: Routing.generate('rep_log_new'),
-        //             method: 'POST',
-        //             data: JSON.stringify(data),
-        //             // Used as a standard for promise (successful)
-        //         }).then(function (data, textStatus, jqXHR){
-        //             $.ajax({
-        //                 url: jqXHR.getResponseHeader("Location")
-        //             }).then(function (data){
-        //                 console.log('now we are really done');
-        //                 console.log(data);
-        //                 // we're done
-        //                 resolve(data);
-        //             });
-        //
-        //         }).catch(function (errorData){
-        //             reject(errorData);
-        //         });
-        //     });
-        // },
-        _saveRepLog: function (data){
-            return $.ajax({
-                    url: Routing.generate('rep_log_new'),
+        _saveRepLog(data){
+            return new Promise( (resolve, reject) => {
+                const url = Routing.generate('rep_log_new');
+
+                $.ajax({
+                    url,
                     method: 'POST',
                     data: JSON.stringify(data),
                     // Used as a standard for promise (successful)
                 }).then( (data, textStatus, jqXHR) => {
-                    return $.ajax({
+                    $.ajax({
                         url: jqXHR.getResponseHeader("Location")
+                    }).then((data) => {
+                        resolve(data);
                     });
+
+                }).catch((errorData) => {
+                    reject(errorData);
                 });
-
+            });
         },
+        // _saveRepLog: function (data){
+        //     return $.ajax({
+        //             url: Routing.generate('rep_log_new'),
+        //             method: 'POST',
+        //             data: JSON.stringify(data),
+        //             // Used as a standard for promise (successful)
+        //         }).then( (data, textStatus, jqXHR) => {
+        //             return $.ajax({
+        //                 url: jqXHR.getResponseHeader("Location")
+        //             });
+        //         });
+        //
+        // },
 
-        _mapErrorsToForm: function (errorData){
+        _mapErrorsToForm(errorData){
 
             const $form = this.$wrapper.find(this._selectors.newRepForm);
             this._removeFormErrors();
@@ -183,21 +181,21 @@
             });
         },
 
-        _removeFormErrors: function (){
+        _removeFormErrors(){
             // reset things
             const $form = this.$wrapper.find(this._selectors.newRepForm);
             $form.find('.js-field-error').remove();
             $form.find('.form-group').removeClass('has-error');
         },
 
-        _clearForm: function (){
+        _clearForm(){
             this._removeFormErrors();
             const $form = this.$wrapper.find(this._selectors.newRepForm);
             // Get DOM element
             $form[0].reset();
         },
 
-        _addRow: function (repLog){
+        _addRow(repLog){
 
             const tplText = $('#js-rep-log-row-template').html();
             const tpl = _.template(tplText);
@@ -222,12 +220,21 @@
 
 
        $.extend(Helper.prototype, {
-           calculateTotalWeight: function () {
+           calculateTotalWeight() {
                let totalWeight = 0;
                this.$wrapper.find('tbody tr').each( (index, element) =>  {
                    totalWeight += $(element).data('weight');
                });
                return totalWeight;
+           },
+
+           getTotalWeightString(maxWeight = 500){
+               let weight = this.calculateTotalWeight();
+
+               if (weight > maxWeight){
+                   weight = maxWeight + '+';
+               }
+               return weight + ' lbs';
            }
        });
         // if function starts with _  -> Should be treated as a private function (keep in mind: everything in JS in public!)
