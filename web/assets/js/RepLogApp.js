@@ -1,35 +1,37 @@
 'use strict';
 
 (function (window, $, Routing, swal) {
-    // Holds all global variables
-    window.RepLogApp = function ($wrapper) {
+    class RepLogApp {
+        constructor($wrapper) {
             this.$wrapper = $wrapper;
-            this.helper =  new Helper($wrapper);
+            this.helper = new Helper($wrapper);
 
             this.loadRepLogs();
 
 
-        this.$wrapper.on(
-            'click',
-            '.js-delete-rep-log',
-            this.handleRepLogDelete.bind(this)
-        );
-        this.$wrapper.on(
-            'click',
-            'tbody tr',
-            this.handleRowClick.bind(this)
-        );
-        this.$wrapper.on(
-            'submit',
-            this._selectors.newRepForm,
-            this.handleNewFormSubmit.bind(this)
-        )
-    };
+            this.$wrapper.on(
+                'click',
+                '.js-delete-rep-log',
+                this.handleRepLogDelete.bind(this)
+            );
+            this.$wrapper.on(
+                'click',
+                'tbody tr',
+                this.handleRowClick.bind(this)
+            );
+            this.$wrapper.on(
+                'submit',
+                this._selectors.newRepForm,
+                this.handleNewFormSubmit.bind(this)
+            )
+        }
 
-    $.extend(window.RepLogApp.prototype, {
-        _selectors:{
-            newRepForm: '.js-new-rep-log-form'
-        },
+        get _selectors(){
+            return {
+                newRepForm: '.js-new-rep-log-form'
+            };
+
+        }
 
         loadRepLogs(){
             $.ajax({
@@ -42,14 +44,14 @@
                     this._addRow(repLog);
                 });
             })
-        },
+        }
 
         updateTotalWeightLifted() {
 
             this.$wrapper.find('.js-total-weight').html(
                 this.helper.getTotalWeightString()
             );
-        },
+        }
 
         handleRepLogDelete(e) {
             e.preventDefault();
@@ -68,7 +70,7 @@
             });
 
 
-        },
+        }
 
         _deleteRepLog($link){
             $link.addClass('text-danger');
@@ -93,12 +95,12 @@
                     this.updateTotalWeightLifted();
                 });
             });
-        },
+        }
 
 
         handleRowClick() {
             console.log("row clicked!")
-        },
+        }
 
         handleNewFormSubmit(e){
             e.preventDefault();
@@ -121,7 +123,7 @@
             });
 
 
-        },
+        }
 
         // Longer Promise version
         _saveRepLog(data){
@@ -144,7 +146,7 @@
                     reject(errorData);
                 });
             });
-        },
+        }
         // _saveRepLog: function (data){
         //     return $.ajax({
         //             url: Routing.generate('rep_log_new'),
@@ -157,7 +159,7 @@
         //             });
         //         });
         //
-        // },
+        // }
 
         _mapErrorsToForm(errorData){
 
@@ -179,21 +181,21 @@
                 $wrapper.addClass('has-error');
 
             });
-        },
+        }
 
         _removeFormErrors(){
             // reset things
             const $form = this.$wrapper.find(this._selectors.newRepForm);
             $form.find('.js-field-error').remove();
             $form.find('.form-group').removeClass('has-error');
-        },
+        }
 
         _clearForm(){
             this._removeFormErrors();
             const $form = this.$wrapper.find(this._selectors.newRepForm);
             // Get DOM element
             $form[0].reset();
-        },
+        }
 
         _addRow(repLog){
 
@@ -205,7 +207,7 @@
                 .append($.parseHTML(html));
             this.updateTotalWeightLifted();
         }
-    });
+    }
 
 
 
@@ -214,30 +216,31 @@
      * A "private" object
      * @type {{}}
      */
-       const Helper = function ($wrapper) {
+
+    class Helper{
+        constructor($wrapper) {
             this.$wrapper = $wrapper;
-        };
+        }
 
+       calculateTotalWeight() {
+           let totalWeight = 0;
+           this.$wrapper.find('tbody tr').each( (index, element) =>  {
+               totalWeight += $(element).data('weight');
+           });
+           return totalWeight;
+       }
 
-       $.extend(Helper.prototype, {
-           calculateTotalWeight() {
-               let totalWeight = 0;
-               this.$wrapper.find('tbody tr').each( (index, element) =>  {
-                   totalWeight += $(element).data('weight');
-               });
-               return totalWeight;
-           },
+       getTotalWeightString(maxWeight = 500){
+           let weight = this.calculateTotalWeight();
 
-           getTotalWeightString(maxWeight = 500){
-               let weight = this.calculateTotalWeight();
-
-               if (weight > maxWeight){
-                   weight = maxWeight + '+';
-               }
-               return weight + ' lbs';
+           if (weight > maxWeight){
+               weight = maxWeight + '+';
            }
-       });
+           return weight + ' lbs';
+       }
+   }
         // if function starts with _  -> Should be treated as a private function (keep in mind: everything in JS in public!)
         // prototype, makes function callable on instance of object
-
+    // make class visible in global (public) scope -> used in index.html
+    window.RepLogApp = RepLogApp;
 })(window, jQuery, Routing, swal);
